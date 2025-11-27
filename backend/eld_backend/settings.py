@@ -168,7 +168,7 @@ ALLOWED_HOSTS = ['*']
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    'your-domain.com',  # Add your actual domain
+    'eld-trip-planner-zqiv.onrender.com',  # Add your actual domain
 ]
 
 # OR if you want to keep DEBUG=True for development
