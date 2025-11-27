@@ -173,3 +173,6 @@ ALLOWED_HOSTS = [
 
 # OR if you want to keep DEBUG=True for development
 DEBUG = True
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
