@@ -23,6 +23,7 @@ const getCycleHelperText = (value) => {
 
 
 const TripPlanner = () => {
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/';
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -47,7 +48,7 @@ const TripPlanner = () => {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:8000/api/plan-trip/', {
+      const response = await axios.post(`${API_URL}plan-trip/`, {
         ...formData,
         current_cycle_used: parseFloat(formData.current_cycle_used)
       });
