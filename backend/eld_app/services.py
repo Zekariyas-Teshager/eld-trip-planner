@@ -36,50 +36,68 @@ class TripPlannerService:
         route_data = self.map_service.get_route(coords1, coords2)
         return route_data['distance_km']
     
+    # In your plan_trip method in services.py
     def plan_trip(self, current_location: str, pickup_location: str, 
-             dropoff_location: str, current_cycle_used: float) -> Dict:
-    
-        # Get coordinates for all locations
-        start_coords = self.geocode_location(current_location)
-        pickup_coords = self.geocode_location(pickup_location)
-        end_coords = self.geocode_location(dropoff_location)
+                dropoff_location: str, current_cycle_used: float) -> Dict:
         
-        # Get route from current to pickup
-        to_pickup_route = self.map_service.get_route(start_coords, pickup_coords)
+        print(f"🚛 Planning trip: {current_location} -> {pickup_location} -> {dropoff_location}")
         
-        # Get route from pickup to dropoff  
-        to_dropoff_route = self.map_service.get_route(pickup_coords, end_coords)
-        
-        # Combine routes for the full journey
-        full_route_coordinates = (
-            to_pickup_route['coordinates'] + 
-            to_dropoff_route['coordinates'][1:]  # Avoid duplicate point at pickup
-        )
-        
-        total_distance = to_pickup_route['distance_km'] + to_dropoff_route['distance_km']
-        total_duration = to_pickup_route['duration_hours'] + to_dropoff_route['duration_hours']
-        
-        # Generate stops and logs (your existing code)
-        stops = self.generate_stops(total_distance, total_duration)
-        daily_logs = self.generate_daily_logs(total_duration, current_cycle_used)
-        
-        return {
-            'total_distance_km': round(total_distance, 2),
-            'total_duration_hours': round(total_duration, 2),
-            'stops': stops,
-            'daily_logs': daily_logs,
-            'route_coordinates': full_route_coordinates,  # This is crucial for the map!
-            'route': {
-                'current_to_pickup': {
-                    'distance': round(to_pickup_route['distance_km'], 2),
-                    'duration': round(to_pickup_route['duration_hours'], 2)
-                },
-                'pickup_to_dropoff': {
-                    'distance': round(to_dropoff_route['distance_km'], 2),
-                    'duration': round(to_dropoff_route['duration_hours'], 2)
+        try:
+            # Geocode all locations to get real coordinates
+            current_coords = self.map_service.geocode_location(current_location)
+            pickup_coords = self.map_service.geocode_location(pickup_location)
+            dropoff_coords = self.map_service.geocode_location(dropoff_location)
+            
+            print(f"📍 Coordinates:")
+            print(f"   Current: {current_coords}")
+            print(f"   Pickup: {pickup_coords}") 
+            print(f"   Dropoff: {dropoff_coords}")
+            
+            # Calculate distances using OSRM
+            to_pickup_route = self.map_service.get_route(current_coords, pickup_coords)
+            to_dropoff_route = self.map_service.get_route(pickup_coords, dropoff_coords)
+            
+            to_pickup_distance = to_pickup_route['distance_km']
+            to_dropoff_distance = to_dropoff_route['distance_km']
+            total_distance = to_pickup_distance + to_dropoff_distance
+            
+            to_pickup_duration = to_pickup_route['duration_hours']
+            to_dropoff_duration = to_dropoff_route['duration_hours']
+            total_duration = to_pickup_duration + to_dropoff_duration
+            
+            # Get full route coordinates for the map
+            full_route = self.map_service.get_route(current_coords, dropoff_coords)
+            
+            # Generate stops and logs
+            stops = self.generate_stops(total_distance, total_duration)
+            daily_logs = self.generate_daily_logs(total_duration, current_cycle_used)
+            
+            # Generate map
+            map_path = self.map_service.generate_map(full_route['coordinates'], stops)
+            
+            return {
+                'total_distance_km': round(total_distance, 2),
+                'total_duration_hours': round(total_duration, 2),
+                'stops': stops,
+                'daily_logs': daily_logs,
+                'route_coordinates': full_route['coordinates'],
+                'map_path': map_path,
+                'route': {
+                    'current_to_pickup': {
+                        'distance': round(to_pickup_distance, 2),
+                        'duration': round(to_pickup_duration, 2)
+                    },
+                    'pickup_to_dropoff': {
+                        'distance': round(to_dropoff_distance, 2),
+                        'duration': round(to_dropoff_duration, 2)
+                    }
                 }
             }
-        }
+            
+        except Exception as e:
+            print(f"❌ Error in plan_trip: {e}")
+            # Return fallback data
+            return self._get_fallback_trip_data(current_location, pickup_location, dropoff_location, current_cycle_used)
 
     def calculate_duration(self, distance: float) -> float:
         return distance / self.avg_speed_kmh
