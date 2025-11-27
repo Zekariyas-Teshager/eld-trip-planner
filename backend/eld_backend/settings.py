@@ -1,4 +1,3 @@
-# backend/eld_backend/settings.py
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -15,7 +14,6 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-your-secret-key-here')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
 # Application definition
 INSTALLED_APPS = [
@@ -118,14 +116,15 @@ REST_FRAMEWORK = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://10.86.210.52:3000"
+    "http://10.86.210.52:3000",
+    "https://eld-trip-planner-zekariyas.netlify.app"
 ]
 
 # Allow credentials if needed
 CORS_ALLOW_CREDENTIALS = True
 
 # Allow all methods
-CORS_ALLOW_ALL_ORIGINS = True  # Only for development!
+# CORS_ALLOW_ALL_ORIGINS = True  # Only for development!
 
 # Add these headers for PDF files
 CORS_ALLOW_HEADERS = [
@@ -170,9 +169,6 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'eld-trip-planner-zqiv.onrender.com',  # Add your actual domain
 ]
-
-# OR if you want to keep DEBUG=True for development
-DEBUG = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')

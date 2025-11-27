@@ -32,11 +32,10 @@ class PDFLogService:
 
         # MAIN SECTIONS
         self._draw_header(c, width, height, day_data)
-        self._draw_info_boxes(c, width, height, trip_info)
+        self._draw_info_boxes(c, width, height, day_data, trip_info)
         self._draw_24_hour_grid(c, width, height, day_data)
         self._draw_remarks_section(c, width, height, day_data)
-        self._draw_shipping_section(c, width, height)
-        self._draw_recap_section(c, width, height)
+        self._draw_shipping_section(c, width, height, trip_info)
 
         c.save()
         return output_path
@@ -134,45 +133,78 @@ class PDFLogService:
     # ---------------------------------------------------------
     # SECTION 2 — FROM / TO / DRIVER INFO BOXES
     # ---------------------------------------------------------
-    def _draw_info_boxes(self, c, width, height, trip_info):
+    def _draw_info_boxes(self, c, width, height, day_data, trip_info):
         y = height - 1.25 * inch
 
         c.setFont("Helvetica", 10)
 
+        start_location = day_data.get('start_location', '')
+        end_location = day_data.get('end_location', '')
         # FROM / TO
         c.drawString(self.margin + 0.65 * inch, y, "From:")
         c.line(self.margin + 0.64 * inch, y - 0.1 * inch, self.margin + 3.5 * inch, y - 0.1 * inch)
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(self.margin + 1.24 * inch , y, start_location)
+        c.setFont("Helvetica", 10)
+
 
         c.drawString(self.margin + 4.0 * inch , y, "To:")
         c.line(self.margin + 4.0 * inch, y - 0.1 * inch, self.margin + 7.0 * inch,  y - 0.1 * inch)
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(self.margin + 4.4 * inch , y, end_location)
+        c.setFont("Helvetica", 10)
 
         # Large row of boxes from image
         y -= 0.9 * inch
         box_height = 0.42 * inch
 
+        miles_today = day_data.get('miles_today', '')
+        total_mileage = day_data.get('total_mileage', '')
         # Total miles driving today
         c.drawString(self.margin + 0.50 * inch, y - 0.15 * inch, "Total Miles Driving Today")
         c.rect(self.margin + 0.35 * inch, y, 1.9 * inch, box_height)
+        c.setFont("Helvetica-Bold", 12)
+        c.drawCentredString(self.margin + 1.3 * inch , y + 0.1 * inch, miles_today)
+        c.setFont("Helvetica", 10)
 
         # Total mileage today
         c.drawString(self.margin + 2.50 * inch, y - 0.15 * inch, "Total Mileage Today")
         c.rect(self.margin + 2.35 * inch, y, 1.7 * inch, box_height)
+        c.setFont("Helvetica-Bold", 12)
+        c.drawCentredString(self.margin + 3.2 * inch , y + 0.1 * inch, total_mileage)
+        c.setFont("Helvetica", 10)
 
+        carrier_name = trip_info.get('form_data', {}).get('carrier_name', '')
+        main_office_address = trip_info.get('form_data', {}).get('main_office_address', '')
+        home_terminal_address = trip_info.get('form_data', {}).get('home_terminal_address', '')
+        vehicle_numbers = trip_info.get('form_data', {}).get('vehicle_numbers', '')
         # Carrier
         c.drawString(self.margin + 5.0 * inch, y + 0.05 * inch, "Name of Carrier or Carriers")
         c.line(self.margin + 4.25 * inch, y + 0.2 * inch, self.margin + 7.5 * inch, y + 0.2 * inch)
+        c.setFont("Helvetica-Bold", 10)
+        c.drawCentredString(self.margin + 5.875 * inch , y + 0.3 * inch, carrier_name)
+        c.setFont("Helvetica", 10)
 
         # Below row
         y -= 0.65 * inch
 
         c.drawString(self.margin + 0.50 * inch, y - 0.15 * inch, "Truck/Tractor and Trailer Numbers or License Plate(s)")
         c.rect(self.margin + 0.35 * inch, y, 3.7 * inch, box_height)
+        c.setFont("Helvetica-Bold", 12)
+        c.drawCentredString(self.margin + 2.2 * inch , y + 0.1 * inch, vehicle_numbers)
+        c.setFont("Helvetica", 10)
 
         c.drawString(self.margin + 5.0 * inch, y + box_height - 0.15 * inch, "Main Office Address")
         c.line(self.margin + 4.25 * inch, y + box_height, self.margin + 7.5 * inch, y + box_height)
+        c.setFont("Helvetica-Bold", 10)
+        c.drawCentredString(self.margin + 5.875 * inch , y + box_height + 0.1 * inch, main_office_address)
+        c.setFont("Helvetica", 10)
 
         c.drawString(self.margin + 5.0 * inch, y - 0.15 * inch, "Home Terminal Address")
         c.line(self.margin + 4.25 * inch, y, self.margin + 7.5 * inch, y)
+        c.setFont("Helvetica-Bold", 10)
+        c.drawCentredString(self.margin + 5.875 * inch , y + 0.1 * inch, carrier_name)
+        c.setFont("Helvetica", 10)
 
 
     # ---------------------------------------------------------
@@ -219,6 +251,11 @@ class PDFLogService:
             x = grid_left + h * hour_width
             c.line(x, grid_top, x, grid_top - 4 * row_height)
 
+        off_duty_hours = day_data.get("off_duty_hours", 0)
+        sleeper_hours = day_data.get("sleeper_hours", 0)
+        driving_hours = day_data.get("driving_hours", 0)
+        on_duty_hours = day_data.get("on_duty_hours", 0)
+        hours_list = [off_duty_hours, sleeper_hours, driving_hours, on_duty_hours]
         for r in range(5):
             y = grid_top - r * row_height
             c.line(grid_left, y, grid_left + grid_width, y)
@@ -226,6 +263,47 @@ class PDFLogService:
             c.setLineWidth(1)
             c.line(grid_left + grid_width + 0.2 * inch, y, grid_left + grid_width + 0.6 * inch, y)
             c.setLineWidth(0.5)
+            if r > 0:
+                c.setFont("Helvetica-Bold", 12)
+                c.drawString(grid_left + grid_width + 0.2 * inch , y + 0.1 * inch, str(hours_list[r - 1]) )
+                c.setFont("Helvetica", 10)
+
+            hour_count = 24
+            hour_step = grid_width / hour_count
+            semi_major_tick = 8  # points
+            minor_tick = 4  # points (for quarter-hours)
+
+            # dimensions for ticks
+            c.setLineWidth(0.6)
+            if (r < 2):
+                # draw half-hour semi-major ticks
+                for h in range(hour_count):
+                    x = grid_left + (h + 0.5) * hour_step
+                    c.line(x, y, x, y - semi_major_tick)
+
+                # draw quarter-hour minor ticks (3 per hour segment)
+                for h in range(hour_count):
+                    for q in (1, 2, 3):
+                        x = grid_left + (h + q / 4.0) * hour_step
+                        c.line(x, y, x, y - minor_tick)
+                
+            elif (r > 2):
+                # draw half-hour semi-major ticks
+                for h in range(hour_count):
+                    x = grid_left + (h + 0.5) * hour_step
+                    c.line(x, y, x, y + semi_major_tick)
+
+                # draw quarter-hour minor ticks (3 per hour segment)
+                for h in range(hour_count):
+                    for q in (1, 2, 3):
+                        x = grid_left + (h + q / 4.0) * hour_step
+                        c.line(x, y, x, y + minor_tick)
+            c.setLineWidth(0.5)
+                
+
+
+            
+
 
         # DRAW DUTY SCHEDULE LINES
         schedule = day_data.get("schedule", [])
@@ -296,6 +374,21 @@ class PDFLogService:
         c.setLineWidth(0.8)
         c.line(line_x0, line_y, line_x1, line_y)
 
+        off_duty_hours = day_data.get("off_duty_hours", 0)
+        sleeper_hours = day_data.get("sleeper_hours", 0)
+        driving_hours = day_data.get("driving_hours", 0)
+        on_duty_hours = day_data.get("on_duty_hours", 0)
+        total_hours = float(off_duty_hours) + float(sleeper_hours) + float(driving_hours) + float(on_duty_hours)
+
+        c.setLineWidth(1)
+        c.line(line_x0 + line_w + 0.2 * inch, line_y - 0.2 * inch, line_x1 + 0.6 * inch, line_y - 0.2 * inch)
+        c.setLineWidth(0.8)
+        
+        # draw total hours
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(line_x0 + line_w + 0.2 * inch , line_y - 0.1 * inch, str(total_hours) )
+        c.setFont("Helvetica", 10)
+
         # dimensions for ticks
         hour_count = 24
         hour_step = line_w / hour_count
@@ -324,44 +417,13 @@ class PDFLogService:
                 x = line_x0 + (h + q / 4.0) * hour_step
                 c.line(x, line_y, x, line_y - minor_tick)
 
-
-        # # === 24-HOUR TIMELINE ===
-        # line_x0 = self.margin + 0.9 * inch
-        # line_x1 = line_x0 + 6.0 * inch
-        # line_y = y - 0.25 * inch
-
-        # c.setLineWidth(1.2)
-        # c.line(line_x0, line_y, line_x1, line_y)
-
-        # hour_step = 6.0 * inch / 24
-
-        # # Hour labels: Midnight, 1, 2, ..., 11, Noon, 13, ..., 23, 24
-        # c.setFont("Helvetica", 7)
-        # labels = ["Midnight"] + [str(h) for h in range(1, 12)] + ["Noon"] + [str(h) for h in range(13, 24)] + ["24"]
-        # for h in range(25):
-        #     x = line_x0 + h * hour_step
-        #     c.setLineWidth(0.8)
-        #     c.line(x, line_y, x, line_y - 12)  # Major tick
-        #     c.drawCentredString(x, line_y + 8, labels[h])
-
-        # # Half-hour ticks
-        # c.setLineWidth(0.6)
-        # for h in range(24):
-        #     x = line_x0 + (h + 0.5) * hour_step
-        #     c.line(x, line_y, x, line_y - 8)
-
         # === REMARK WITH DIAGONAL TEXT (LIKE OFFICIAL LOG) ===
         remarks = day_data.get("schedule", [])
-        # if not remarks_text:
-        #     remarks_text = "Picked up Chicago, IL • Fueled Gary, IN • 30-min break • 10-hr reset St. Louis, MO • Pre-trip done"
 
-        # Split into individual remarks
-        # events = [e.strip() for e in remarks_text.replace("•", "|").replace(",", "|").split("|") if e.strip()]
         remark_types = ["OFF", "SB", "ON"]
 
         bar_y = line_y - 0.35 * inch
 
-        c.setFillColorRGB(0.94, 0.94, 0.94)
         c.setStrokeColorRGB(0, 0, 0)
         c.setLineWidth(0.7)
 
@@ -380,60 +442,30 @@ class PDFLogService:
                     c.saveState()
                     c.translate(x_center, bar_y)
                     c.rotate(-60)
-                    c.setFont("Helvetica-Oblique", 8)
+                    c.setFont("Helvetica-BoldOblique", 10)
                     c.setFillColorRGB(0, 0, 0)
                     c.drawString(0, -1, remark["remark"])
                     c.restoreState()
-                c.setStrokeColor(colors.black)
-
-        # for i, event in enumerate(events):
-        #     if i >= 10:  # Max 10 visible bars
-        #         break
-        #     ratio = (i + 0.5) / len(events) if events else 0.5
-        #     x_center = line_x0 + ratio * 6.0 * inch
-
-        #     # Draw line to show the time interval
-        #     c.line(x_center, bar_y, x_center, bar_y)
-        #     # Diagonal text inside bar
-        #     c.saveState()
-        #     c.translate(x_center, bar_y)
-        #     c.rotate(-60)
-        #     c.setFont("Helvetica-Oblique", 8)
-        #     c.setFillColorRGB(0, 0, 0)
-        #     c.drawString(0, -1, event[:28])
-        #     c.restoreState()
-
-        # Optional: city names below (uncomment if you want)
-        # cities = ["Chicago", "Gary", "Indianapolis", "St. Louis", "Springfield", "Tulsa", "Oklahoma City"]
-        # for i, city in enumerate(cities):
-        #     x = line_x0 + (i + 0.5) * hour_step * 3.4
-        #     c.setFont("Helvetica", 6.5)
-        #     c.drawCentredString(x, bar_y - 0.7 * inch, city)
+        c.setStrokeColor(colors.black)
 
     # ---------------------------------------------------------
     # SECTION 5 — SHIPPING DOCUMENTS
     # ---------------------------------------------------------
-    def _draw_shipping_section(self, c, width, height):
-        y = height - 6.3 * inch
+    def _draw_shipping_section(self, c, width, height, trip_info):
+        y = height - 7.2 * inch
         c.setFont("Helvetica-Bold", 10)
         c.drawString(self.margin, y, "Shipping Documents:")
 
         c.setFont("Helvetica", 9)
-        c.drawString(self.margin, y - 0.3 * inch, "BVL or Manifest No.: _________________________")
-
-        c.drawString(self.margin, y - 0.6 * inch, "Shipper & Commodity")
-        c.rect(self.margin, y - 1.0 * inch, 7.0 * inch, 0.7 * inch)
-
-    # ---------------------------------------------------------
-    # SECTION 6 — RECAP TABLE
-    # ---------------------------------------------------------
-    def _draw_recap_section(self, c, width, height):
-        y = height - 7.8 * inch
-        # c.setFont("Helvetica-Bold", 10)
-        # c.drawString(self.margin, y, "Recap:")
-        # c.setFont("Helvetica", 8)
-
-        # # A simple 3-column recap like the image
-        # c.rect(self.margin, y - 0.3 * inch, 2.2 * inch, 1.0 * inch)
-        # c.rect(self.margin + 2.25 * inch, y - 0.3 * inch, 2.2 * inch, 1.0 * inch)
-        # c.rect(self.margin + 4.5 * inch, y - 0.3 * inch, 2.0 * inch, 1.0 * inch)
+        c.drawString(self.margin, y - 0.3 * inch, "BVL or Manifest No.: ______________________________________________________")
+        shipping_docs = trip_info.get('form_data', {}).get('shipping_docs', '')
+        self._draw_multiline_text(
+            c,
+            text=shipping_docs,
+            x=self.margin + 1.5 * inch,
+            y=y - 0.25 * inch,
+            max_width=4.5 * inch,
+            line_height=12,
+            font="Helvetica",
+            size=9
+        )

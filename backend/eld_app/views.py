@@ -1,4 +1,3 @@
-# backend/eld_app/views.py
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -55,13 +54,6 @@ def _generate_fmcsa_daily_logs(trip_data, request):
             start_location = f"Day {i+1} Rest Stop"
             end_location = f"Day {i+2} Rest Stop"
 
-        # ←←← THIS IS THE MAGIC PART →→→
-        remarks = planner._build_remarks_for_day(
-            day_number=day_log['day_number'],
-            stops=stops,
-            trip_data=trip_data
-        )
-
         day_specific_data = {
             'day_number': day_log['day_number'],
             'date': log_date,
@@ -75,7 +67,6 @@ def _generate_fmcsa_daily_logs(trip_data, request):
             'start_location': start_location,
             'end_location': end_location,
             'schedule': day_log.get('schedule', []),
-            'remarks': remarks,                     # ← THIS GOES TO PDF!
         }
 
         # Generate filenames
@@ -98,8 +89,7 @@ def _generate_fmcsa_daily_logs(trip_data, request):
                 'day_number': day_log['day_number'],
                 'date': log_date.strftime('%m/%d/%Y'),
                 'pdf_url': pdf_url,
-                'html_url': html_url,
-                'remarks': remarks,  # ← Show in response too!
+                'html_url': html_url, 
                 'miles_today': f"{daily_miles:.0f}",
             })
         except Exception as e:

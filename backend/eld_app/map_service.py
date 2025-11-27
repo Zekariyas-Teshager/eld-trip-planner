@@ -1,4 +1,3 @@
-# map_service.py
 import requests
 import math
 import time
