@@ -29,9 +29,3 @@ A full-stack application for truck driver Hours of Service (HOS) compliance and 
 1. Navigate to frontend directory: `cd frontend`
 2. Install dependencies: `npm install`
 3. Start development server: `npm start`
-
-## API Endpoints
-
-- `POST /api/plan-trip/` - Plan a new trip with HOS compliance
-- `GET /api/trips/` - List all trips
-- `GET /api/trips/{id}/` - Get specific trip details
