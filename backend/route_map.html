@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver's Daily Log</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .log-container {
+            max-width: 8.5in;
+            margin: 0 auto;
+            background-color: white;
+            padding: 0.25in;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            line-height: 1.2;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px;
+        }
+        .header h1 {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .header-subtitle {
+            font-size: 10px;
+            margin: 2px 0;
+        }
+        .section {
+            margin-bottom: 15px;
+        }
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-decoration: underline;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        table, th, td {
+            border: 1px solid #000;
+        }
+        th, td {
+            padding: 3px 5px;
+            text-align: left;
+            height: 20px;
+            vertical-align: top;
+        }
+        .grid-table {
+            table-layout: fixed;
+        }
+        .grid-table td {
+            height: 25px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .grid-header {
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+        .form-field {
+            margin-bottom: 5px;
+        }
+        .form-field label {
+            display: inline-block;
+            width: 120px;
+            font-weight: bold;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-item input {
+            margin-right: 3px;
+        }
+        textarea {
+            width: 100%;
+            height: 60px;
+            padding: 3px;
+            border: 1px solid #999;
+        }
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-top: 20px;
+            padding-top: 5px;
+        }
+        .brackets {
+            display: inline-block;
+            margin: 0 2px;
+        }
+        .time-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 1px;
+            margin-bottom: 10px;
+            border: 1px solid #000;
+        }
+        .time-cell {
+            border: 1px solid #000;
+            padding: 2px;
+            height: 25px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .grid-header-cell {
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+        .remarks-box {
+            border: 1px solid #000;
+            height: 80px;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        .shipping-box {
+            border: 1px solid #000;
+            height: 60px;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        .indent {
+            margin-left: 20px;
+        }
+        .line-input {
+            border: none;
+            border-bottom: 1px solid #000;
+            width: 100%;
+            background: transparent;
+            padding: 2px 0;
+        }
+        .full-width {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="log-container">
+        <div class="header">
+            <h1>DRIVERS DAILY LOG</h1>
+            <div class="header-subtitle">
+                <span class="brackets">[24 hours]</span>
+                <span class="brackets">[bream]</span>
+                <span class="brackets">(day)</span>
+                <span class="brackets">(year)</span>
+            </div>
+            <div class="header-subtitle">
+                <span class="brackets">[Origin: - Five at home terminal.</span>
+            </div>
+            <div class="header-subtitle">
+                Day/trade: Driver retains its half per possession for 8 days.
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">From:</div>
+            <table>
+                <tr>
+                    <th>Total Miles Driving Today</th>
+                    <th>Total Mileage Today</th>
+                    <th>Name of Garties or Centres</th>
+                </tr>
+                <tr>
+                    <td><input type="text" class="line-input"></td>
+                    <td><input type="text" class="line-input"></td>
+                    <td><input type="text" class="line-input"></td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <div>Main Office Address</div>
+                        <input type="text" class="line-input full-width">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <div>Total/Twitter and Twitter Members or License Publish/Share (above each unit)</div>
+                        <input type="text" class="line-input full-width">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <div>Home Terminal Address</div>
+                        <input type="text" class="line-input full-width">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Kids</div>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="brights">
+                    <label for="brights">Brights</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="off-duty">
+                    <label for="off-duty">1.0 Of Days</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="sleeper">
+                    <label for="sleeper">2.5 Happy Birth</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="driving">
+                    <label for="driving">3.0 Driving</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="on-duty">
+                    <label for="on-duty">4.0 On Days (over driving)</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Remarks</div>
+            <div class="remarks-box"></div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Shipping Documents:</div>
+            <div class="shipping-box">
+                <div><strong>DV1 on Marathon No. 84</strong></div>
+                <div><strong>Skipper & Commodity:</strong></div>
+                <div>Enter name of place you regarded and whose collected items work and where and where each change of duty occurred.</div>
+                <div>Use time standard of former terminal.</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Receipt Certificate set out at day</div>
+            <div class="time-grid">
+                <div class="time-cell grid-header-cell">Date</div>
+                <div class="time-cell grid-header-cell">23 Hour / 5 Day</div>
+                <div class="time-cell grid-header-cell">B.</div>
+                <div class="time-cell grid-header-cell">C.</div>
+                <div class="time-cell grid-header-cell">63 Hour / 7 Day</div>
+                <div class="time-cell grid-header-cell">A.</div>
+                <div class="time-cell grid-header-cell">B.</div>
+                <div class="time-cell grid-header-cell">C.</div>
+                <div class="time-cell grid-header-cell">34</div>
+                <div class="time-cell grid-header-cell">14 year took</div>
+                
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                
+                <div class="time-cell">To stay</div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                
+                <div class="time-cell">Done</div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                
+                <div class="time-cell">to stay</div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                
+                <div class="time-cell">to follow</div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                
+                <div class="time-cell">a & b</div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+                <div class="time-cell"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

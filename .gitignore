@@ -1,0 +1,63 @@
+# ========================
+# PYTHON / DJANGO
+# ========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.sqlite3
+*.log
+local_settings.py
+db.sqlite3
+media/
+staticfiles/
+static/
+*.pot
+*.mo
+
+# Environment
+.env
+.env.local
+.env.development
+.env.production
+venv/
+env/
+*.pyenv
+
+# ========================
+# REACT / NODE
+# ========================
+node_modules/
+build/
+dist/
+.npm/
+yarn-error.log
+yarn-debug.log*
+
+# ========================
+# PDF / LOG / OUTPUT FILES
+# ========================
+*.pdf
+output/
+backend/logs/
+test_logs/
+*.log
+
+# ========================
+# OS FILES
+# ========================
+.DS_Store
+Thumbs.db
+
+# ========================
+# IDE / EDITORS
+# ========================
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# ========================
+# GIT SUBMODULE / FRONTEND
+# ========================
+frontend/.git

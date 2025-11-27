@@ -1,0 +1,23 @@
+.App {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+/* Print styles for trip results */
+@media print {
+  .MuiAppBar-root {
+    display: none !important;
+  }
+  
+  .MuiButton-root {
+    display: none !important;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .MuiContainer-root {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
