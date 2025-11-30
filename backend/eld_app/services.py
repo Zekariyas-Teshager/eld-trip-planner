@@ -1,6 +1,5 @@
 import math
 from typing import Dict, List
-from .models import Trip, Stop
 from .map_service import MapService
 
 class TripPlannerService:
@@ -13,15 +12,6 @@ class TripPlannerService:
         self.cycle_days = 8
         self.map_service = MapService()
     
-    def calculate_distance(self, loc1: str, loc2: str) -> float:
-        """Use real routing service for accurate distances"""
-        coords1 = self.geocode_location(loc1)
-        coords2 = self.geocode_location(loc2)
-        
-        route_data = self.map_service.get_route(coords1, coords2)
-        return route_data['distance_km']
-    
-    # In your plan_trip method in services.py
     def plan_trip(self, current_location: str, pickup_location: str, 
                 dropoff_location: str, current_cycle_used: float) -> Dict:
         
@@ -55,6 +45,37 @@ class TripPlannerService:
             
             # Generate stops and logs
             stops = self.generate_stops(total_distance, total_duration)
+
+            # Add CURRENT LOCATION stop (starting point)
+            stops.append({
+                'type': 'CURRENT',
+                'location': current_location.title(),
+                'distance': 0,
+                'duration': 0,
+                'stop_duration': 0.0  # No stop time at current location
+            })
+
+            # Add pickup stop (1 hour)
+            stops.append({
+                'type': 'PICKUP',
+                'location': pickup_location.title(),
+                'distance': to_pickup_distance,
+                'duration': to_pickup_duration,
+                'stop_duration': 1.0
+            })
+
+            # Add dropoff stop (1 hour)
+            stops.append({
+                'type': 'DROPOFF',
+                'location': dropoff_location.title(),
+                'distance': total_distance,
+                'duration': total_duration,
+                'stop_duration': 1.0
+            })
+
+            # Sort stops by distance
+            stops.sort(key=lambda x: x['distance'])
+            
             daily_logs = self.generate_daily_logs(total_duration, current_cycle_used)
             
             # Generate map
@@ -81,23 +102,11 @@ class TripPlannerService:
             
         except Exception as e:
             print(f"❌ Error in plan_trip: {e}")
-            # Return fallback data
-            return self._get_fallback_trip_data(current_location, pickup_location, dropoff_location, current_cycle_used)
-
-    def calculate_duration(self, distance: float) -> float:
-        return distance / self.avg_speed_kmh
-    
+            # throw the exception to be handled upstream
+            raise e
+            
     def generate_stops(self, total_distance: float, total_duration: float) -> List[Dict]:
         stops = []
-        
-        # Add pickup stop (1 hour)
-        stops.append({
-            'type': 'PICKUP',
-            'location': 'Pickup Location',
-            'distance': 0,
-            'duration': 0,
-            'stop_duration': 1.0
-        })
         
         # Add fuel stops every 1600 km
         fuel_stop_count = int(total_distance // self.fuel_stop_interval)
@@ -141,15 +150,6 @@ class TripPlannerService:
                     'stop_duration': 10.0
                 })
         
-        # Add dropoff stop (1 hour)
-        stops.append({
-            'type': 'DROPOFF',
-            'location': 'Dropoff Location',
-            'distance': total_distance,
-            'duration': total_duration,
-            'stop_duration': 1.0
-        })
-        
         # Sort stops by distance and remove any that are too close
         stops.sort(key=lambda x: x['distance'])
         
@@ -157,12 +157,27 @@ class TripPlannerService:
         filtered_stops = []
         min_distance_gap = 50  # km
         
+        priority = {'FUEL': 3, 'OVERNIGHT': 2, 'REST': 1}
+
         for stop in stops:
-            if not filtered_stops or stop['distance'] - filtered_stops[-1]['distance'] >= min_distance_gap:
+            if not filtered_stops:
                 filtered_stops.append(stop)
-        
+                continue
+
+            last = filtered_stops[-1]
+            gap = stop['distance'] - last['distance']
+
+            if gap >= min_distance_gap:
+                filtered_stops.append(stop)
+            else:
+                # If too close, keep the higher priority stop (FUEL > OVERNIGHT > REST)
+                pr_cur = priority.get(stop.get('type'), 0)
+                pr_last = priority.get(last.get('type'), 0)
+
+                if pr_cur > pr_last:
+                    filtered_stops[-1] = stop
         return filtered_stops
-    
+
 
     def generate_daily_logs(self, total_duration_hours: float, current_cycle_used: float) -> List[Dict]:
         """
@@ -282,7 +297,7 @@ class TripPlannerService:
             daily_logs.append({
                 "day_number": day,
                 "driving_hours": round(driving_today, 1),
-                "on_duty_hours": round(total_on_duty, 1),
+                "on_duty_hours": round(on_duty_nd, 1),
                 "off_duty_hours": round(off_duty_hours, 1),
                 "sleeper_hours": round(sleeper_hours, 1),
                 "cycle_used": round(cycle_used, 1),
@@ -291,3 +306,4 @@ class TripPlannerService:
             })
 
         return daily_logs
+    

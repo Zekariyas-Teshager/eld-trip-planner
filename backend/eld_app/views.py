@@ -152,7 +152,6 @@ def view_html_log(request, filename):
             return HttpResponse(f.read(), content_type='text/html')
     return Response({"error": "HTML log not found"}, status=404)
 
-# ADD THIS FUNCTION TO YOUR views.py (anywhere after the other @api_view functions)
 @api_view(['GET'])
 def get_day_logs(request, day_number, trip_id=None):
     """
