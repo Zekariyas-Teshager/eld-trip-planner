@@ -62,6 +62,11 @@ const MapSection = ({ stops, routeCoordinates }) => (
 );
 
 const TripResults = () => {
+
+  React.useEffect(() => {
+    document.title = "Trip Results";
+  }, [])
+
   const location = useLocation();
   const navigate = useNavigate();
   const tripData = location.state?.tripData;
@@ -114,7 +119,7 @@ const TripResults = () => {
                   primary={
                     <Typography variant="h6" color="primary" component="div">
                       📋 Day {log.day_number} - FMCSA Log Sheet
-                      {log.requires_restart && (
+                      {log.requires_34_hour_restart && (
                         <Chip 
                           label="34-hr Restart Required" 
                           color="warning" 
@@ -275,9 +280,9 @@ const TripResults = () => {
                     Total Distance
                   </Typography>
                   <Typography variant="h6" color="primary" component="div">
-                    {tripData.total_distance_km} km
+                    {tripData.trip_info.total_distance_km} km
                     <Typography variant="body2" color="text.secondary" component="div">
-                      ({(tripData.total_distance_km * 0.621371).toFixed(0)} miles)
+                      ({(tripData.trip_info.total_distance_km * 0.621371).toFixed(0)} miles)
                     </Typography>
                   </Typography>
                 </Grid>
@@ -286,7 +291,7 @@ const TripResults = () => {
                     Total Duration
                   </Typography>
                   <Typography variant="h6" color="primary" component="div">
-                    {tripData.total_duration_hours} hours
+                    {tripData.trip_info.total_duration_hours} hours
                   </Typography>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -341,10 +346,10 @@ const TripResults = () => {
                         // Use fragment with span elements
                         <>
                           <Typography variant="body2" component="span" sx={{ display: 'block' }}>
-                            📍 Distance: {stop.distance} km
+                            📍 Distance: {stop.cumulative_distance_km} km
                           </Typography>
                           <Typography variant="body2" component="span" sx={{ display: 'block' }}>
-                            ⏱️ Duration: {stop.duration.toFixed(1)} hours
+                            ⏱️ Duration: {stop.cumulative_hours.toFixed(1)} hours
                           </Typography>
                           <Typography variant="body2" component="span" sx={{ display: 'block' }}>
                             🕒 Stop time: {stop.stop_duration} hours

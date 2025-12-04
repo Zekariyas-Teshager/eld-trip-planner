@@ -31,11 +31,11 @@ class PDFLogService:
         width, height = self.page_size
 
         # MAIN SECTIONS
-        self._draw_header(c, width, height, day_data)
-        self._draw_info_boxes(c, width, height, day_data, trip_info)
-        self._draw_24_hour_grid(c, width, height, day_data)
-        self._draw_remarks_section(c, width, height, day_data)
-        self._draw_shipping_section(c, width, height, trip_info)
+        self._draw_header(c, height, day_data)
+        self._draw_info_boxes(c, height, day_data, trip_info)
+        self._draw_24_hour_grid(c, height, day_data)
+        self._draw_remarks_section(c, height, day_data)
+        self._draw_shipping_section(c, height, trip_info)
 
         c.save()
         return output_path
@@ -43,7 +43,7 @@ class PDFLogService:
     # ---------------------------------------------------------
     # SECTION 1 — HEADER (Matches the image)
     # ---------------------------------------------------------
-    def _draw_header(self, c, width, height, day_data):
+    def _draw_header(self, c, height, day_data):
         top = height - 0.75 * inch
         # Format date properly
         # Normalize date into separate month/day/year strings (and a combined date_str for existing usage)
@@ -133,7 +133,7 @@ class PDFLogService:
     # ---------------------------------------------------------
     # SECTION 2 — FROM / TO / DRIVER INFO BOXES
     # ---------------------------------------------------------
-    def _draw_info_boxes(self, c, width, height, day_data, trip_info):
+    def _draw_info_boxes(self, c, height, day_data, trip_info):
         y = height - 1.25 * inch
 
         c.setFont("Helvetica", 10)
@@ -203,14 +203,14 @@ class PDFLogService:
         c.drawString(self.margin + 5.0 * inch, y - 0.15 * inch, "Home Terminal Address")
         c.line(self.margin + 4.25 * inch, y, self.margin + 7.5 * inch, y)
         c.setFont("Helvetica-Bold", 10)
-        c.drawCentredString(self.margin + 5.875 * inch , y + 0.1 * inch, carrier_name)
+        c.drawCentredString(self.margin + 5.875 * inch , y + 0.1 * inch, home_terminal_address)
         c.setFont("Helvetica", 10)
 
 
     # ---------------------------------------------------------
     # SECTION 3 — 24 HOUR GRID (Matches the image design)
     # ---------------------------------------------------------
-    def _draw_24_hour_grid(self, c, width, height, day_data):
+    def _draw_24_hour_grid(self, c, height, day_data):
         grid_top = height - 3.5 * inch
         grid_left = self.margin +  0.9 * inch
         grid_width = 6.0 * inch
@@ -252,10 +252,10 @@ class PDFLogService:
             c.line(x, grid_top, x, grid_top - 4 * row_height)
 
         off_duty_hours = day_data.get("off_duty_hours", 0)
-        sleeper_hours = day_data.get("sleeper_hours", 0)
+        sleeper_berth = day_data.get("sleeper_berth", 0)
         driving_hours = day_data.get("driving_hours", 0)
         on_duty_hours = day_data.get("on_duty_hours", 0)
-        hours_list = [off_duty_hours, sleeper_hours, driving_hours, on_duty_hours]
+        hours_list = [off_duty_hours, sleeper_berth, driving_hours, on_duty_hours]
         for r in range(5):
             y = grid_top - r * row_height
             c.line(grid_left, y, grid_left + grid_width, y)
@@ -357,7 +357,7 @@ class PDFLogService:
     # ---------------------------------------------------------
     # SECTION 4 — REMARKS
     # ---------------------------------------------------------
-    def _draw_remarks_section(self, c, width, height, day_data):
+    def _draw_remarks_section(self, c, height, day_data):
         # === REMARKS TITLE ===
         y = height - 5.2 * inch
         c.setFont("Helvetica-Bold", 10)
@@ -375,10 +375,10 @@ class PDFLogService:
         c.line(line_x0, line_y, line_x1, line_y)
 
         off_duty_hours = day_data.get("off_duty_hours", 0)
-        sleeper_hours = day_data.get("sleeper_hours", 0)
+        sleeper_berth = day_data.get("sleeper_berth", 0)
         driving_hours = day_data.get("driving_hours", 0)
         on_duty_hours = day_data.get("on_duty_hours", 0)
-        total_hours = float(off_duty_hours) + float(sleeper_hours) + float(driving_hours) + float(on_duty_hours)
+        total_hours = float(off_duty_hours) + float(sleeper_berth) + float(driving_hours) + float(on_duty_hours)
 
         c.setLineWidth(1)
         c.line(line_x0 + line_w + 0.2 * inch, line_y - 0.2 * inch, line_x1 + 0.6 * inch, line_y - 0.2 * inch)
@@ -451,8 +451,8 @@ class PDFLogService:
     # ---------------------------------------------------------
     # SECTION 5 — SHIPPING DOCUMENTS
     # ---------------------------------------------------------
-    def _draw_shipping_section(self, c, width, height, trip_info):
-        y = height - 7.2 * inch
+    def _draw_shipping_section(self, c, height, trip_info):
+        y = height - 9.2 * inch
         c.setFont("Helvetica-Bold", 10)
         c.drawString(self.margin, y, "Shipping Documents:")
 

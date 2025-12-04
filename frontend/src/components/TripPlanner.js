@@ -23,6 +23,11 @@ const getCycleHelperText = (value) => {
 
 
 const TripPlanner = () => {
+
+  React.useEffect(() => {
+    document.title = "Trip Planner";
+  }, [])
+
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/';
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
