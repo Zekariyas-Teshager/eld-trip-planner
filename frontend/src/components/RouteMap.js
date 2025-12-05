@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { MapContainer, TileLayer, Polyline, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -84,7 +84,7 @@ const RouteMap = ({ stops = [], routeCoordinates = [] }) => {
     };
 
     // Calculate distance between two coordinates in meters
-    const calculateDistance = (coord1, coord2) => {
+    const calculateDistance = useCallback((coord1, coord2) => {
         if (!coord1 || !coord2 || coord1.length !== 2 || coord2.length !== 2) {
             return 0;
         }
@@ -103,10 +103,10 @@ const RouteMap = ({ stops = [], routeCoordinates = [] }) => {
             Math.sin(dLng / 2) * Math.sin(dLng / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
-    };
+    }, []);
 
     // Get total route distance in meters
-    const getTotalRouteDistance = (coords) => {
+    const getTotalRouteDistance = useCallback((coords) => {
         if (!coords || coords.length < 2) return 0;
         
         let totalDistance = 0;
@@ -114,10 +114,10 @@ const RouteMap = ({ stops = [], routeCoordinates = [] }) => {
             totalDistance += calculateDistance(coords[i-1], coords[i]);
         }
         return totalDistance;
-    };
+    }, [calculateDistance]);
 
     // Get stop positions based on distance percentage
-    const calculateStopPositions = () => {
+    const calculateStopPositions = useCallback(() => {
         if (!routeCoordinates || routeCoordinates.length === 0 || !validStops || validStops.length === 0) {
             return [];
         }
@@ -137,7 +137,6 @@ const RouteMap = ({ stops = [], routeCoordinates = [] }) => {
         return validStops.map(stop => {
             // Use cumulative distance in km, convert to meters for comparison
             const stopDistanceMeters = safeParseFloat(stop.cumulative_distance_km) * 1000;
-            const stopPercentage = Math.min(stopDistanceMeters / totalRouteDistance, 1);
             
             // Find the segment where this stop belongs
             let accumulatedDistance = 0;
@@ -157,7 +156,7 @@ const RouteMap = ({ stops = [], routeCoordinates = [] }) => {
             // Fallback to end of route
             return routeCoordinates[routeCoordinates.length - 1] || [-98.5795, 39.8283];
         });
-    };
+    }, [routeCoordinates, validStops, calculateDistance, getTotalRouteDistance ]);
 
     // Filter and validate stops
     useEffect(() => {
@@ -195,7 +194,7 @@ const RouteMap = ({ stops = [], routeCoordinates = [] }) => {
         } else {
             setStopPositions([]);
         }
-    }, [validStops, routeCoordinates]);
+    }, [validStops, routeCoordinates, calculateStopPositions]);
 
     const mapCenter = calculateCenter();
     const polylinePositions = convertCoordinates(routeCoordinates);
